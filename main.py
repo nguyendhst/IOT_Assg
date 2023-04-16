@@ -4,13 +4,6 @@ from hooks.InfluxDB_Hook import *
 from hooks.Adafruit_Hook import *
 from hooks.Serial_Hook import *
 
-# read from .env
-import os
-
-# pip3 install python-dotenv
-from dotenv import load_dotenv
-
-load_dotenv()
 
 gateway = Gateway()
 
@@ -25,8 +18,8 @@ influx = InfluxDB(
 )
 gateway.addHook(influx)
 
-#adafruit = Adafruit()
-#gateway.addHook(adafruit)
+# adafruit = Adafruit()
+# gateway.addHook(adafruit)
 
 
 def main():

@@ -3,17 +3,12 @@ from hooks.Adafruit_Hook import *
 from hooks.Serial_Hook import *
 import paho.mqtt.client as mqtt
 import time
-import os
+
+# read from conf.ini
 import configparser
 
 broker_address = "io.adafruit.com"
 port = 1883
-
-# pip3 install python-dotenv
-from dotenv import load_dotenv
-
-load_dotenv()
-
 # username = os.getenv("ADA_USR")
 # password = os.getenv("ADA_KEY")
 
