@@ -1,4 +1,4 @@
-from Hook import Hook
+from hooks.Hook import Hook
 import Adafruit_IO
 
 
@@ -12,7 +12,7 @@ class Adafruit(Hook):
     def start(self):
         self.client = Adafruit_IO.Client(self.username, self.key)
         self.client.on_message = self.on_message
-        
+
         for feed in self.feed_ids:
             self.client.subscribe(feed)
 

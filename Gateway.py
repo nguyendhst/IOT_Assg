@@ -1,7 +1,10 @@
-from InfluxDB_Hook import *
+from hooks.InfluxDB_Hook import *
+from hooks.Adafruit_Hook import *
+from hooks.Serial_Hook import *
 import paho.mqtt.client as mqtt
 import time
 import os
+import configparser
 
 broker_address = "io.adafruit.com"
 port = 1883
@@ -11,31 +14,43 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-username = os.getenv("ADA_USR")
-password = os.getenv("ADA_KEY")
-topic = username + "/feeds/"
+# username = os.getenv("ADA_USR")
+# password = os.getenv("ADA_KEY")
 
 AIO_FEED_IDS = ["button1", "button2"]
 
 
 class Gateway:
     def __init__(self):
+        self.config = configparser.ConfigParser()
+        try:
+            self.config.read("conf.ini")
+        except Exception as e:
+            print(e)
+            print("Failed to read config file")
+            exit(1)
+
         self.hooks: list[Hook] = []
-        self.feeds = AIO_FEED_IDS
+        self.username = self.config["DEFAULT"]["ADA_USR"]
+        self.password = self.config["DEFAULT"]["ADA_KEY"]
+        self.feeds = self.config["DEFAULT"]["ADA_FDS"].split(",")
         self.client = mqtt.Client(
             clean_session=True,
         )
-        self.client.username_pw_set(username, password)
+        self.client.username_pw_set(
+            username=self.username,
+            password=self.password,
+        )
         try:
             self.client.connect(broker_address, port)
             for feed in self.feeds:
-                self.client.subscribe(topic + feed)
+                self.client.subscribe(self.username + "/feeds/" + feed)
         except Exception as e:
             print(e)
             print("Failed to connect to broker")
 
         self.client.on_message = self.on_message
-
+        self.client.on_subscribe = self.on_subscribe
 
     def addHook(self, hook: Hook):
         try:
@@ -45,14 +60,17 @@ class Gateway:
             print("Failed to add hook: " + hook.name)
 
     def start(self):
-        self.client.loop_start()
-
         for hook in self.hooks:
             try:
                 hook.start()
             except Exception as e:
                 print(e)
                 print("Failed to start hook: " + hook.name)
+
+        self.client.loop_start()
+
+        while True:
+            time.sleep(1)
 
     def stop(self):
         self.client.loop_stop()
@@ -61,3 +79,6 @@ class Gateway:
         print("Received message: " + str(message.payload.decode("utf-8")))
         for hook in self.hooks:
             hook.on_message(message.topic, message.payload)
+
+    def on_subscribe(self, client, userdata, mid, granted_qos):
+        print("Subscribed: " + str(mid) + " " + str(granted_qos))

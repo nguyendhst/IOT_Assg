@@ -1,6 +1,7 @@
 import serial.tools.list_ports
+import serial
 from AdafruitConnect import AdafruitConnect
-from Hook import *
+from hooks.Hook import *
 
 
 class Serial(Hook):
@@ -12,6 +13,10 @@ class Serial(Hook):
         if Serial.getPort() != None:
             self.ser = serial.Serial(port=Serial.getPort(), baudrate=115200)
 
+        if self.ser.isOpen():
+            print("Serial is open")
+        else:
+            print("Serial is not open")
 
     def getPort():
         ports = serial.tools.list_ports.comports()
@@ -25,7 +30,7 @@ class Serial(Hook):
                 splitPort = strPort.split(" ")
                 commPort = splitPort[0]
         print("COM10")
-        return "COM10"
+        return "/dev/ttys014"
 
     def processData(client: AdafruitConnect, data):
         data = data.replace("!", "")
@@ -51,3 +56,7 @@ class Serial(Hook):
                     self.mess = ""
                 else:
                     self.mess = self.mess[end + 1 :]
+
+    def on_message(self, feed, payload):
+        print("Serial: Received: " + payload.decode() + ", feed_id: " + feed)
+        # TODO: Send to serial

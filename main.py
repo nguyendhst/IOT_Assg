@@ -1,25 +1,39 @@
 import time
-import random
-from AdafruitConnect import AdafruitConnect
-from PortManagement import PortManagement
+from Gateway import *
+from hooks.InfluxDB_Hook import *
+from hooks.Adafruit_Hook import *
+from hooks.Serial_Hook import *
 
 # read from .env
 import os
-#pip3 install python-dotenv
+
+# pip3 install python-dotenv
 from dotenv import load_dotenv
+
 load_dotenv()
 
-AIO_FEED_IDS = ["button1", "button2"]
-AIO_USERNAME = os.getenv("ADA_USR")
-AIO_KEY = os.getenv("ADA_KEY")
+gateway = Gateway()
 
-gateway = AdafruitConnect(AIO_USERNAME, AIO_KEY, AIO_FEED_IDS)
-gateway.connect()
-gateway.subscribe()
+serial = Serial()
+gateway.addHook(serial)
 
-port = PortManagement()
+influx = InfluxDB(
+    host=gateway.config["INFLUXDB"]["INF_URL"],
+    bucket=gateway.config["INFLUXDB"]["INF_BUCKET"],
+    org=gateway.config["INFLUXDB"]["INF_ORG"],
+    token=gateway.config["INFLUXDB"]["INF_TOKEN"],
+)
+gateway.addHook(influx)
 
-while True:
-    port.readSerial(gateway)
-    gateway.run()
-    time.sleep(1)
+#adafruit = Adafruit()
+#gateway.addHook(adafruit)
+
+
+def main():
+    gateway.start()
+    while True:
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()

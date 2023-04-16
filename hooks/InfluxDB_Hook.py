@@ -1,4 +1,4 @@
-from Hook import *
+from hooks.Hook import *
 import influxdb_client
 from influxdb_client.client.write_api import SYNCHRONOUS
 from influxdb_client.client.write_api import WriteOptions
@@ -9,11 +9,19 @@ import os
 
 
 class InfluxDB(Hook):
-    def __init__(self, bucket: str, org: str, token: str) -> None:
+    def __init__(self, host: str, bucket: str, org: str, token: str) -> None:
         self.client = None
+        self.host = host
         self.token = token
         self.org = org
         self.bucket = bucket
+        self.write_api = None
+
+    def start(self):
+        print("Starting InfluxDB Hook")
+        self.client = influxdb_client.InfluxDBClient(
+            url=self.host, token=self.token, org=self.org
+        )
         self.write_api = self.client.write_api(
             write_options=WriteOptions(
                 batch_size=1000,
@@ -25,16 +33,11 @@ class InfluxDB(Hook):
                 exponential_base=2,
             )
         )
-
-    def start(self):
-        print("Starting InfluxDB Hook")
-        self.client = influxdb_client.InfluxDBClient(
-            url=os.getenv("INFLUX_URL"), token=self.token, org=self.org
-        )
+        print("InfluxDB Connected")
 
     def on_message(self, feed, payload):
-        print("Received: " + payload + ", feed_id: " + feed)
-        self.write(feed, float(payload))
+        print("InfluxDB: Received: " + payload.decode() + ", feed_id: " + feed)
+        #self.write(feed, float(payload))
 
     def on_subscribe(self, feed):
         print("Subscribed to: " + feed)

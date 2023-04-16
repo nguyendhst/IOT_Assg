@@ -1,0 +1,10 @@
+[DEFAULT]
+ADA_USR = xaxaxaxaxa
+ADA_KEY = aio_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ADA_FDS = bbbbbb1,bbbbbb2
+
+[INFLUXDB]
+INF_ORG = mountngubinh@gmail.com
+INF_URL = https://europe-west1-1.gcp.cloud2.influxdata.com
+INF_BUCKET = test1
+INF_TOKEN = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
