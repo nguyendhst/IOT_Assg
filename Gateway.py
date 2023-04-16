@@ -52,7 +52,7 @@ class Gateway:
             self.hooks.append(hook)
         except Exception as e:
             print(e)
-            print("Failed to add hook: " + hook.name)
+            print("Failed to add hook")
 
     def start(self):
         for hook in self.hooks:
@@ -60,12 +60,9 @@ class Gateway:
                 hook.start()
             except Exception as e:
                 print(e)
-                print("Failed to start hook: " + hook.name)
+                print("Failed to start hook")
 
         self.client.loop_start()
-
-        while True:
-            time.sleep(1)
 
     def stop(self):
         self.client.loop_stop()
