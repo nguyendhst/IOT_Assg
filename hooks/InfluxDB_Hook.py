@@ -17,7 +17,7 @@ class InfluxDB(Hook):
         self.bucket = bucket
         self.write_api = None
 
-    def start(self):
+    def start(self, gateway):
         print("Starting InfluxDB Hook")
         self.client = influxdb_client.InfluxDBClient(
             url=self.host, token=self.token, org=self.org

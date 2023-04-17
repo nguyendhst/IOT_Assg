@@ -22,7 +22,7 @@ class Gateway:
             self.config.read("conf.ini")
         except Exception as e:
             print(e)
-            print("Failed to read config file")
+            print("Failed to read config file: conf.ini\nPlease create one")
             exit(1)
 
         self.hooks: list[Hook] = []
@@ -40,6 +40,7 @@ class Gateway:
             self.client.connect(broker_address, port)
             for feed in self.feeds:
                 self.client.subscribe(self.username + "/feeds/" + feed)
+            print("Connected to broker")
         except Exception as e:
             print(e)
             print("Failed to connect to broker")
@@ -57,7 +58,7 @@ class Gateway:
     def start(self):
         for hook in self.hooks:
             try:
-                hook.start()
+                hook.start(self)
             except Exception as e:
                 print(e)
                 print("Failed to start hook")
@@ -66,6 +67,9 @@ class Gateway:
 
     def stop(self):
         self.client.loop_stop()
+        
+    def publish(self, topic, payload):
+        self.client.publish(topic, payload)
 
     def on_message(self, client, userdata, message):
         print("Received message: " + str(message.payload.decode("utf-8")))
@@ -74,3 +78,5 @@ class Gateway:
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         print("Subscribed: " + str(mid) + " " + str(granted_qos))
+        
+    

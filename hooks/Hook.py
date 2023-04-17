@@ -1,8 +1,7 @@
 import abc
-
 class Hook(abc.ABC):
     @abc.abstractmethod
-    def start(self):
+    def start(self, gateway):
         pass
     
     @abc.abstractmethod
